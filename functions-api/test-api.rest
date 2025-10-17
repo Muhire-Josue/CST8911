@@ -4,14 +4,14 @@
 
 ### Get all tasks
 GET http://localhost:7071/api/getTasks
-Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Impvc3VlIiwiaWF0IjoxNzYwNzI4MDI5LCJleHAiOjE3NjA3MzE2Mjl9.GJqm1FpTfmbwY3e1G_sT01DnvxLnVTZiVYJHATkw6Yk
 
 ### Add a new task
 POST http://localhost:7071/api/addTask
-Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Impvc3VlIiwiaWF0IjoxNzYwNzI4MDI5LCJleHAiOjE3NjA3MzE2Mjl9.GJqm1FpTfmbwY3e1G_sT01DnvxLnVTZiVYJHATkw6Yk
 
 {
-  "id": "2",
+  "id": "5",
   "title": "Buy groceries",
   "category": "home",
   "status": "pending"

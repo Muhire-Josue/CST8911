@@ -1,4 +1,6 @@
+// src/functions/addTask/index.js
 const { CosmosClient } = require("@azure/cosmos");
+const validateToken = require('../validateToken'); // adjust if needed
 
 const connectionString = process.env.COSMOS_DB_CONNECTION_STRING;
 const client = new CosmosClient(connectionString);
@@ -6,36 +8,57 @@ const client = new CosmosClient(connectionString);
 const databaseId = "tasksdb";
 const containerId = "tasks";
 
+/**
+ * Azure Function: POST /api/addTask
+ * Requires a valid Bearer token from the OAuth mock server.
+ * Inserts a new task into Cosmos DB.
+ */
 module.exports = async function (context, req) {
-  context.log("HTTP POST /api/addTask triggered");
+  // Step 1: Validate token
+  const decoded = validateToken(req, {
+    status: (code) => ({
+      json: (obj) => context.res = { status: code, body: obj }
+    })
+  });
+  if (!decoded) return; // stop execution if invalid token
+
+  // Step 2: Validate request body
+  const { id, title, category, status } = req.body || {};
+  if (!id || !title || !category || !status) {
+    context.res = {
+      status: 400,
+      body: { message: "Missing required fields: id, title, category, or status" },
+    };
+    return;
+  }
 
   try {
-    const task = req.body;
-
-    if (!task || !task.id || !task.title) {
-      context.res = {
-        status: 400,
-        body: { message: "Invalid task payload. Must include 'id' and 'title'." },
-      };
-      return;
-    }
-
+    // Step 3: Insert new task into Cosmos DB
     const database = client.database(databaseId);
     const container = database.container(containerId);
 
-    // Create the task
-    const { resource: createdItem } = await container.items.create(task);
+    const newTask = {
+      id,
+      title,
+      category,
+      status,
+      createdBy: decoded.username, // attach username from token
+      createdAt: new Date().toISOString(),
+    };
 
+    await container.items.create(newTask);
+
+    // Step 4: Respond with confirmation
     context.res = {
       status: 201,
       headers: { "Content-Type": "application/json" },
-      body: createdItem,
+      body: { message: "Task added successfully", task: newTask },
     };
   } catch (err) {
-    context.log("Error:", err);
+    context.log("Error adding task:", err);
     context.res = {
       status: 500,
-      body: { message: "Failed to add task", error: err.message },
+      body: { message: "Error adding task", error: err.message },
     };
   }
 };

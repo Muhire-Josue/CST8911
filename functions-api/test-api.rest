@@ -1,0 +1,18 @@
+# =============================
+# Azure Function API Test
+# =============================
+
+### Get all tasks
+GET http://localhost:7071/api/getTasks
+Accept: application/json
+
+### Add a new task
+POST http://localhost:7071/api/addTask
+Content-Type: application/json
+
+{
+  "id": "2",
+  "title": "Buy groceries",
+  "category": "home",
+  "status": "pending"
+}
